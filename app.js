@@ -62,15 +62,26 @@ function getRarity(shards, shardId) {
 // -------------------------
 function bindModifierUI() {
 
-    const fields = [
+    const numberFields = [
         "hunterFortune",
+
         "newtLevel",
         "salamanderLevel",
         "lizardKingLevel",
-        "leviathanLevel"
+        "leviathanLevel",
+
+        "pythonLevel",
+        "kingCobraLevel",
+        "seaSerpentLevel",
+        "tiamatLevel",
+
+        "crocodileLevel"
     ];
 
-    for (const field of fields) {
+    // -------------------------
+    // NUMBER INPUTS
+    // -------------------------
+    for (const field of numberFields) {
 
         const el = document.getElementById(field);
 
@@ -91,6 +102,23 @@ function bindModifierUI() {
 
             // Save modifier
             playerModifiers[field] = value;
+
+            rerun();
+        });
+    }
+
+    // -------------------------
+    // CHECKBOXES
+    // -------------------------
+    const mediumBlackHole =
+        document.getElementById("mediumBlackHole");
+
+    if (mediumBlackHole) {
+
+        mediumBlackHole.addEventListener("change", () => {
+
+            playerModifiers.mediumBlackHole =
+                mediumBlackHole.checked;
 
             rerun();
         });
