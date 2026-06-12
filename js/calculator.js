@@ -26,52 +26,35 @@ export function calculateFusion({
     // GLOBAL MODIFIERS
     // =====================================
 
-    // Sea Serpent:
-    // +2% per level
+    // Sea Serpent + Tiamat stack
     const seaBonus =
         (playerModifiers.seaSerpentLevel || 0) * 0.02;
 
-    // Tiamat:
-    // +5% effectiveness to Sea Serpent per level
     const tiamatBonus =
         (playerModifiers.tiamatLevel || 0) * 0.05;
 
-    // FINAL:
-    // 1 + (sea serpent bonus * tiamat scaling)
-    //
-    // Example:
-    // level 10 serpent = 20%
-    // level 10 tiamat = 50%
-    //
-    // 1 + (0.20 * 1.5)
-    // = 1.30
     const serpentStack =
         1 + (seaBonus * (1 + tiamatBonus));
 
-    // Python speed multiplier
     const pythonSpeedMult =
         1 + (
-            (playerModifiers.pythonLevel || 0)
-            * 0.05
-            * serpentStack
+            (playerModifiers.pythonLevel || 0) *
+            0.05 *
+            serpentStack
         );
 
-    // Cobra fortune multiplier
     const cobraMult =
         1 + (
-            (playerModifiers.kingCobraLevel || 0)
-            * 0.01
-            * serpentStack
+            (playerModifiers.kingCobraLevel || 0) *
+            0.01 *
+            serpentStack
         );
 
-    // Medium Black Hole EV
     const blackHoleEV =
-        playerModifiers.mediumBlackHole
-            ? 1.1
-            : 1;
+        playerModifiers.mediumBlackHole ? 1.1 : 1;
 
     // =====================================
-    // RECIPES
+    // RECIPES LOOP
     // =====================================
 
     for (const outputShard in recipes) {
@@ -80,8 +63,7 @@ export function calculateFusion({
 
         for (const outputAmountKey in outputRecipes) {
 
-            const recipeList =
-                outputRecipes[outputAmountKey];
+            const recipeList = outputRecipes[outputAmountKey];
 
             const outputAmount =
                 Number(outputAmountKey) || 0;
@@ -101,31 +83,23 @@ export function calculateFusion({
                 if (baseRate <= 0) continue;
 
                 // =====================================
-                // FORTUNE
+                // FORTUNE CALC
                 // =====================================
 
                 let totalFortune =
                     Number(playerModifiers.hunterFortune || 0);
 
-                if (affectsData?.newt_affects?.includes(shard1)) {
-                    totalFortune +=
-                        (playerModifiers.newtLevel || 0) * 2;
-                }
+                if (affectsData?.newt_affects?.includes(shard1))
+                    totalFortune += (playerModifiers.newtLevel || 0) * 2;
 
-                if (affectsData?.salamander_affects?.includes(shard1)) {
-                    totalFortune +=
-                        (playerModifiers.salamanderLevel || 0) * 2;
-                }
+                if (affectsData?.salamander_affects?.includes(shard1))
+                    totalFortune += (playerModifiers.salamanderLevel || 0) * 2;
 
-                if (affectsData?.lizard_king_affects?.includes(shard1)) {
-                    totalFortune +=
-                        (playerModifiers.lizardKingLevel || 0);
-                }
+                if (affectsData?.lizard_king_affects?.includes(shard1))
+                    totalFortune += (playerModifiers.lizardKingLevel || 0);
 
-                if (affectsData?.leviathan_affects?.includes(shard1)) {
-                    totalFortune +=
-                        (playerModifiers.leviathanLevel || 0);
-                }
+                if (affectsData?.leviathan_affects?.includes(shard1))
+                    totalFortune += (playerModifiers.leviathanLevel || 0);
 
                 const fortuneMult =
                     1 + totalFortune / 100;
@@ -167,19 +141,14 @@ export function calculateFusion({
                     pythonMult;
 
                 // =====================================
-                // BUY LIMIT
+                // BUY LIMIT (BAZAAR)
                 // =====================================
 
                 const internalBuyId =
                     getInternalId(shards, shard2);
 
                 const weeklySellVolume =
-                    Number(
-                        getWeeklySellVolume(
-                            bazaarProducts,
-                            internalBuyId
-                        )
-                    ) || 0;
+                    Number(getWeeklySellVolume(bazaarProducts, internalBuyId)) || 0;
 
                 const hourlyBuyVolume =
                     weeklySellVolume / 168;
@@ -197,12 +166,7 @@ export function calculateFusion({
                     hourlyBuyVolume / fuseAmount2;
 
                 const fusionRate =
-                    Math.floor(
-                        Math.min(
-                            grindUnits,
-                            marketUnits
-                        )
-                    );
+                    Math.floor(Math.min(grindUnits, marketUnits));
 
                 if (fusionRate <= 0) continue;
 
@@ -220,7 +184,7 @@ export function calculateFusion({
                     fusionRate * outputAmount;
 
                 // =====================================
-                // CROCODILE
+                // CROCODILE (EXPECTED VALUE)
                 // =====================================
 
                 const fam1 =
@@ -236,8 +200,7 @@ export function calculateFusion({
                 if (reptile) {
                     outputAmountPerHour *=
                         1 + (
-                            (playerModifiers.crocodileLevel || 0)
-                            * 0.02
+                            (playerModifiers.crocodileLevel || 0) * 0.02
                         );
                 }
 
@@ -249,20 +212,10 @@ export function calculateFusion({
                     getInternalId(shards, outputShard);
 
                 const buyPrice =
-                    Number(
-                        getBuyPrice(
-                            bazaarProducts,
-                            internalBuyId
-                        )
-                    ) || 0;
+                    Number(getBuyPrice(bazaarProducts, internalBuyId)) || 0;
 
                 const sellPrice =
-                    Number(
-                        getSellPrice(
-                            bazaarProducts,
-                            outputInternalId
-                        )
-                    ) || 0;
+                    Number(getSellPrice(bazaarProducts, outputInternalId)) || 0;
 
                 const costToBuy =
                     buyAmount * buyPrice;
@@ -272,6 +225,10 @@ export function calculateFusion({
 
                 const profitPerHour =
                     revenue - costToBuy;
+
+                // =====================================
+                // PUSH RESULT
+                // =====================================
 
                 results.push({
                     shard1,
@@ -294,10 +251,8 @@ export function calculateFusion({
         }
     }
 
-    return results
-        .sort(
-            (a, b) =>
-                b.profitPerHour - a.profitPerHour
-        )
-        .slice(0, 25);
+    // ❌ NO CAP HERE
+    return results.sort(
+        (a, b) => b.profitPerHour - a.profitPerHour
+    );
 }

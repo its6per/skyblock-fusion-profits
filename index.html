@@ -2,110 +2,67 @@
 <html>
 
 <head>
-
     <title>Skyblock Fusion Profits</title>
-
     <link rel="stylesheet" href="style.css">
-
 </head>
 
 <body>
 
-    <!-- ========================= -->
-    <!-- LEFT SIDEBAR -->
-    <!-- ========================= -->
+<div id="layout">
+
+    <!-- LEFT PANEL -->
     <div id="modifier-panel">
 
         <h1>Skyblock Fusion Profits</h1>
 
-        <h2>Modifiers</h2>
+        <h2>Hunter Fortune</h2>
+        <input id="hunterFortune" type="number" value="0" min="0" max="121"/>
+
+        <h2>Shard Levels</h2>
+
+        <div class="grid-3x3">
+
+            <div class="grid-item">Newt<br><input id="newtLevel" type="number" value="0" min="0" max="10"></div>
+            <div class="grid-item">Salamander<br><input id="salamanderLevel" type="number" value="0" min="0" max="10"></div>
+            <div class="grid-item">Lizard King<br><input id="lizardKingLevel" type="number" value="0" min="0" max="10"></div>
+
+            <div class="grid-item">Leviathan<br><input id="leviathanLevel" type="number" value="0" min="0" max="10"></div>
+            <div class="grid-item">Python<br><input id="pythonLevel" type="number" value="0" min="0" max="10"></div>
+            <div class="grid-item">King Cobra<br><input id="kingCobraLevel" type="number" value="0" min="0" max="10"></div>
+
+            <div class="grid-item">Sea Serpent<br><input id="seaSerpentLevel" type="number" value="0" min="0" max="10"></div>
+            <div class="grid-item">Tiamat<br><input id="tiamatLevel" type="number" value="0" min="0" max="10"></div>
+            <div class="grid-item">Crocodile<br><input id="crocodileLevel" type="number" value="0" min="0" max="10"></div>
+
+        </div>
+
+        <h2>Tools</h2>
 
         <label>
-            Hunter Fortune:
-            <input id="hunterFortune" type="number" value="0" min="0" max="121">
-        </label>
-
-        <br>
-
-        <label>
-            Newt Level:
-            <input id="newtLevel" type="number" value="0" min="0" max="10">
-        </label>
-
-        <br>
-
-        <label>
-            Salamander Level:
-            <input id="salamanderLevel" type="number" value="0" min="0" max="10">
-        </label>
-
-        <br>
-
-        <label>
-            Lizard King Level:
-            <input id="lizardKingLevel" type="number" value="0" min="0" max="10">
-        </label>
-
-        <br>
-
-        <label>
-            Leviathan Level:
-            <input id="leviathanLevel" type="number" value="0" min="0" max="10">
-        </label>
-
-        <br>
-
-        <label>
-            Python Level:
-            <input id="pythonLevel" type="number" value="0" min="0" max="10">
-        </label>
-
-        <br>
-
-        <label>
-            King Cobra Level:
-            <input id="kingCobraLevel" type="number" value="0" min="0" max="10">
-        </label>
-
-        <br>
-
-        <label>
-            Sea Serpent Level:
-            <input id="seaSerpentLevel" type="number" value="0" min="0" max="10">
-        </label>
-
-        <br>
-
-        <label>
-            Tiamat Level:
-            <input id="tiamatLevel" type="number" value="0" min="0" max="10">
-        </label>
-
-        <br>
-
-        <label>
-            Crocodile Level:
-            <input id="crocodileLevel" type="number" value="0" min="0" max="10">
-        </label>
-
-        <br>
-
-        <label>
-            Medium Black Hole:
+            Medium Pocket Black Hole
             <input id="mediumBlackHole" type="checkbox">
         </label>
 
-        <br>
+        <h2>Results</h2>
+
+        <label style="font-weight:bold; display:block; margin-bottom:5px;">
+            Show Results
+        </label>
+
+        <select id="resultLimitSelect">
+            <option value="10" selected>Top 10</option>
+            <option value="25">Top 25</option>
+            <option value="50">Top 50</option>
+        </select>
 
     </div>
 
-    <!-- ========================= -->
-    <!-- RIGHT CONTENT -->
-    <!-- ========================= -->
+    <!-- RIGHT PANEL -->
     <div id="results"></div>
 
-    <script type="module" src="app.js"></script>
+</div>
+
+<script type="module" src="app.js"></script>
 
 </body>
-
 </html>
