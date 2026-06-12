@@ -4,8 +4,8 @@ import { playerModifiers } from "./js/modifiers.js";
 
 let cachedData = null;
 
-// single source of truth
 let resultLimit = 10;
+let budget = null;
 
 // =========================
 // LOAD DATA
@@ -21,13 +21,14 @@ Promise.all([
 
     bindModifierUI();
     bindResultLimitUI();
+    bindBudgetUI();
     rerun();
 })
 .catch(err => console.error("APP ERROR:", err));
 
 
 // =========================
-// RARITY HELPERS
+// RARITY HELPERS (RESTORED)
 // =========================
 function getRarityColor(rarity) {
     switch ((rarity || "").toLowerCase()) {
@@ -44,17 +45,18 @@ function getRarity(shards, shardId) {
     return shards?.[shardId]?.rarity || "common";
 }
 
+// FIX: resolves shard ID mismatch (C1 vs internal_id vs name)
+function resolveShardKey(shards, id) {
+    if (!id) return null;
 
-// =========================
-// SAFE CLAMP
-// =========================
-function clamp(value, min, max) {
-    return Math.max(min, Math.min(max, value));
+    return Object.keys(shards).find(k =>
+        k === id || shards[k].internal_id === id
+    );
 }
 
 
 // =========================
-// MODIFIERS (CAP SAFE)
+// MODIFIERS
 // =========================
 function bindModifierUI() {
 
@@ -76,15 +78,13 @@ function bindModifierUI() {
         if (!el) continue;
 
         el.addEventListener("input", () => {
-
             const min = Number(el.min || 0);
             const max = Number(el.max || Infinity);
 
             let val = Number(el.value);
-
             if (Number.isNaN(val)) val = 0;
 
-            val = clamp(val, min, max);
+            val = Math.max(min, Math.min(max, val));
 
             el.value = val;
             playerModifiers[id] = val;
@@ -104,25 +104,51 @@ function bindModifierUI() {
 
 
 // =========================
-// RESULT LIMIT UI (FIXED SAFE INIT)
+// RESULT LIMIT
 // =========================
 function bindResultLimitUI() {
 
     const select = document.getElementById("resultLimitSelect");
+    if (!select) return;
 
-    // 🚨 HARD FIX: prevent crash if DOM not ready / missing element
-    if (!select) {
-        console.warn("resultLimitSelect not found - skipping init");
-        return;
-    }
-
-    // sync initial value safely
-    const initial = Number(select.value);
-    resultLimit = Number.isNaN(initial) ? 10 : initial;
+    resultLimit = Number(select.value) || 10;
 
     select.addEventListener("change", (e) => {
-        const val = Number(e.target.value);
-        resultLimit = Number.isNaN(val) ? 10 : val;
+        resultLimit = Number(e.target.value) || 10;
+        rerun();
+    });
+}
+
+
+// =========================
+// BUDGET
+// =========================
+function bindBudgetUI() {
+
+    const panel = document.getElementById("modifier-panel");
+
+    const wrapper = document.createElement("div");
+    wrapper.style.marginTop = "15px";
+
+    wrapper.innerHTML = `
+        <label style="font-weight:bold; display:block; margin-bottom:5px;">
+            Budget (coins)
+        </label>
+        <input id="budgetInput" type="number" min="0" placeholder="No budget">
+    `;
+
+    panel.appendChild(wrapper);
+
+    const input = document.getElementById("budgetInput");
+
+    input.addEventListener("input", () => {
+
+        const val = Number(input.value);
+
+        budget = (!input.value || Number.isNaN(val) || val <= 0)
+            ? null
+            : val;
+
         rerun();
     });
 }
@@ -137,15 +163,13 @@ function rerun() {
 
     const [fusionData, ratesData, affectsData, bazaarData] = cachedData;
 
-    const recipes = fusionData.recipes;
-    const shards = fusionData.shards;
-
     const topResults = calculateFusion({
-        recipes,
+        recipes: fusionData.recipes,
         ratesData,
-        shards,
+        shards: fusionData.shards,
         bazaarProducts: bazaarData.products,
-        affectsData
+        affectsData,
+        budget
     });
 
     const sliced = (topResults || []).slice(0, resultLimit);
@@ -162,27 +186,31 @@ function rerun() {
 
     for (const r of sliced) {
 
-        const grindColor = getRarityColor(getRarity(shards, r.shard1));
-        const buyColor = getRarityColor(getRarity(shards, r.shard2));
-        const outputColor = getRarityColor(getRarity(shards, r.outputShard));
+        const shard1Key = resolveShardKey(fusionData.shards, r.shard1);
+        const shard2Key = resolveShardKey(fusionData.shards, r.shard2);
+        const outputKey = resolveShardKey(fusionData.shards, r.outputShard);
+
+        const grindColor = getRarityColor(getRarity(fusionData.shards, shard1Key));
+        const buyColor = getRarityColor(getRarity(fusionData.shards, shard2Key));
+        const outputColor = getRarityColor(getRarity(fusionData.shards, outputKey));
 
         html += `
             <div class="result-card">
 
                 <div class="fusion-grid">
 
-                    <div class="fusion-cell" style="color:${grindColor};">
-                        ${getName(shards, r.shard1)}<br>
+                    <div class="fusion-cell" style="color:${grindColor}">
+                        ${getName(fusionData.shards, r.shard1)}<br>
                         (${formatNumber(r.grindAmount)})
                     </div>
 
-                    <div class="fusion-cell" style="color:${buyColor};">
-                        ${getName(shards, r.shard2)}<br>
+                    <div class="fusion-cell" style="color:${buyColor}">
+                        ${getName(fusionData.shards, r.shard2)}<br>
                         (${formatNumber(r.buyAmount)})
                     </div>
 
-                    <div class="fusion-cell" style="color:${outputColor};">
-                        ${getName(shards, r.outputShard)}<br>
+                    <div class="fusion-cell" style="color:${outputColor}">
+                        ${getName(fusionData.shards, r.outputShard)}<br>
                         (${formatNumber(r.outputAmountPerHour)})
                     </div>
 
@@ -192,7 +220,6 @@ function rerun() {
                     Profit/hr: ${formatNumber(r.profitPerHour)} <br>
                     Cost to buy: ${formatNumber(r.costToBuy)} <br>
                     Fusion/hr: ${formatNumber(r.fusionRate)} <br>
-                    Buy volume/hr: ${formatNumber(r.hourlyBuyVolume)}
                 </div>
 
             </div>
