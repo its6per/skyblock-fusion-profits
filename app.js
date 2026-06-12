@@ -21,6 +21,43 @@ Promise.all([
 
 
 // -------------------------
+// RARITY COLORS
+// -------------------------
+function getRarityColor(rarity) {
+
+    switch ((rarity || "").toLowerCase()) {
+
+        case "common":
+            return "#FFFFFF";
+
+        case "uncommon":
+            return "#55FF55";
+
+        case "rare":
+            return "#5555FF";
+
+        case "epic":
+            return "#AA00AA";
+
+        case "legendary":
+            return "#FFAA00";
+
+        default:
+            return "#FFFFFF";
+    }
+}
+
+
+// -------------------------
+// GET RARITY
+// -------------------------
+function getRarity(shards, shardId) {
+
+    return shards?.[shardId]?.rarity || "common";
+}
+
+
+// -------------------------
 // UI BINDING
 // -------------------------
 function bindModifierUI() {
@@ -46,10 +83,10 @@ function bindModifierUI() {
 
             let value = Number(el.value) || 0;
 
-            // Clamp value to allowed range
+            // Clamp value
             value = Math.max(min, Math.min(max, value));
 
-            // Update UI field
+            // Update UI
             el.value = value;
 
             // Save modifier
@@ -84,42 +121,89 @@ function rerun() {
 
     console.log("TOP RESULTS:", topResults);
 
-    let html = "<h2>Top 25 Fusion Results</h2>";
+    let html = `
+        <h2>Top 25 Fusion Results</h2>
+
+        <div class="table-header">
+
+            <div class="header-cell">
+                Grind Shard
+            </div>
+
+            <div class="header-cell">
+                Buy Shard
+            </div>
+
+            <div class="header-cell">
+                Output Shard
+            </div>
+
+        </div>
+    `;
 
     for (const r of topResults || []) {
+
+        const grindRarity = getRarity(shards, r.shard1);
+        const buyRarity = getRarity(shards, r.shard2);
+        const outputRarity = getRarity(shards, r.outputShard);
+
+        const grindColor = getRarityColor(grindRarity);
+        const buyColor = getRarityColor(buyRarity);
+        const outputColor = getRarityColor(outputRarity);
 
         html += `
             <div class="result-card">
 
-                <div class="fusion-line">
+                <div class="fusion-grid">
 
-                    <span class="grind">
+                    <div
+                        class="fusion-cell"
+                        style="color: ${grindColor};"
+                    >
                         ${getName(shards, r.shard1)}
+                        <br>
                         (${formatNumber(r.grindAmount)})
-                    </span>
+                    </div>
 
-                    +
-
-                    <span class="buy">
+                    <div
+                        class="fusion-cell"
+                        style="color: ${buyColor};"
+                    >
                         ${getName(shards, r.shard2)}
+                        <br>
                         (${formatNumber(r.buyAmount)})
-                    </span>
+                    </div>
 
-                    →
-
-                    <span class="output">
+                    <div
+                        class="fusion-cell"
+                        style="color: ${outputColor};"
+                    >
                         ${getName(shards, r.outputShard)}
+                        <br>
                         (${formatNumber(r.outputAmountPerHour)})
-                    </span>
+                    </div>
 
                 </div>
 
                 <div class="stats">
 
-                    Profit/hr: ${formatNumber(r.profitPerHour)}<br>
-                    Cost to buy: ${formatNumber(r.costToBuy)}<br>
-                    Fusion/hr: ${formatNumber(r.fusionRate)}<br>
-                    Buy volume/hr: ${formatNumber(r.hourlyBuyVolume)}
+                    Profit/hr:
+                    ${formatNumber(r.profitPerHour)}
+
+                    <br>
+
+                    Cost to buy:
+                    ${formatNumber(r.costToBuy)}
+
+                    <br>
+
+                    Fusion/hr:
+                    ${formatNumber(r.fusionRate)}
+
+                    <br>
+
+                    Buy volume/hr:
+                    ${formatNumber(r.hourlyBuyVolume)}
 
                 </div>
 
