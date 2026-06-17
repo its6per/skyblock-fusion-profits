@@ -28,7 +28,7 @@ Promise.all([
 
 
 // =========================
-// RARITY HELPERS (RESTORED)
+// RARITY HELPERS
 // =========================
 function getRarityColor(rarity) {
     switch ((rarity || "").toLowerCase()) {
@@ -45,13 +45,50 @@ function getRarity(shards, shardId) {
     return shards?.[shardId]?.rarity || "common";
 }
 
-// FIX: resolves shard ID mismatch (C1 vs internal_id vs name)
 function resolveShardKey(shards, id) {
     if (!id) return null;
 
     return Object.keys(shards).find(k =>
         k === id || shards[k].internal_id === id
     );
+}
+
+
+// =========================
+// BUDGET PARSER
+// =========================
+function parseBudget(text) {
+
+    if (!text) return null;
+
+    const cleaned =
+        text
+            .trim()
+            .toLowerCase()
+            .replace(/,/g, "");
+
+    let multiplier = 1;
+    let numberText = cleaned;
+
+    if (cleaned.endsWith("k")) {
+        multiplier = 1_000;
+        numberText = cleaned.slice(0, -1);
+    }
+    else if (cleaned.endsWith("m")) {
+        multiplier = 1_000_000;
+        numberText = cleaned.slice(0, -1);
+    }
+    else if (cleaned.endsWith("b")) {
+        multiplier = 1_000_000_000;
+        numberText = cleaned.slice(0, -1);
+    }
+
+    const value = Number(numberText);
+
+    if (Number.isNaN(value) || value <= 0)
+        return null;
+
+    return value * multiplier;
 }
 
 
@@ -74,15 +111,19 @@ function bindModifierUI() {
     ];
 
     for (const id of fields) {
+
         const el = document.getElementById(id);
         if (!el) continue;
 
         el.addEventListener("input", () => {
+
             const min = Number(el.min || 0);
             const max = Number(el.max || Infinity);
 
             let val = Number(el.value);
-            if (Number.isNaN(val)) val = 0;
+
+            if (Number.isNaN(val))
+                val = 0;
 
             val = Math.max(min, Math.min(max, val));
 
@@ -94,6 +135,7 @@ function bindModifierUI() {
     }
 
     const bh = document.getElementById("mediumBlackHole");
+
     if (bh) {
         bh.addEventListener("change", () => {
             playerModifiers.mediumBlackHole = bh.checked;
@@ -109,47 +151,43 @@ function bindModifierUI() {
 function bindResultLimitUI() {
 
     const select = document.getElementById("resultLimitSelect");
+
     if (!select) return;
 
     resultLimit = Number(select.value) || 10;
 
     select.addEventListener("change", (e) => {
-        resultLimit = Number(e.target.value) || 10;
+
+        resultLimit =
+            Number(e.target.value) || 10;
+
         rerun();
     });
 }
 
 
 // =========================
-// BUDGET
+// BUDGET UI
 // =========================
 function bindBudgetUI() {
-
-    const panel = document.getElementById("modifier-panel");
-
-    const wrapper = document.createElement("div");
-    wrapper.style.marginTop = "15px";
-
-    wrapper.innerHTML = `
-        <label style="font-weight:bold; display:block; margin-bottom:5px;">
-            Budget (coins)
-        </label>
-        <input id="budgetInput" type="number" min="0" placeholder="No budget">
-    `;
-
-    panel.appendChild(wrapper);
 
     const input = document.getElementById("budgetInput");
 
     input.addEventListener("input", () => {
 
-        const val = Number(input.value);
-
-        budget = (!input.value || Number.isNaN(val) || val <= 0)
-            ? null
-            : val;
+        budget = parseBudget(input.value);
 
         rerun();
+    });
+
+    input.addEventListener("blur", () => {
+
+        const parsed = parseBudget(input.value);
+
+        if (!parsed) return;
+
+        input.value =
+            Math.round(parsed).toLocaleString("en-US");
     });
 }
 
@@ -172,7 +210,8 @@ function rerun() {
         budget
     });
 
-    const sliced = (topResults || []).slice(0, resultLimit);
+    const sliced =
+        (topResults || []).slice(0, resultLimit);
 
     let html = `
         <h2>Top ${resultLimit} Fusion Results</h2>
@@ -186,13 +225,29 @@ function rerun() {
 
     for (const r of sliced) {
 
-        const shard1Key = resolveShardKey(fusionData.shards, r.shard1);
-        const shard2Key = resolveShardKey(fusionData.shards, r.shard2);
-        const outputKey = resolveShardKey(fusionData.shards, r.outputShard);
+        const shard1Key =
+            resolveShardKey(fusionData.shards, r.shard1);
 
-        const grindColor = getRarityColor(getRarity(fusionData.shards, shard1Key));
-        const buyColor = getRarityColor(getRarity(fusionData.shards, shard2Key));
-        const outputColor = getRarityColor(getRarity(fusionData.shards, outputKey));
+        const shard2Key =
+            resolveShardKey(fusionData.shards, r.shard2);
+
+        const outputKey =
+            resolveShardKey(fusionData.shards, r.outputShard);
+
+        const grindColor =
+            getRarityColor(
+                getRarity(fusionData.shards, shard1Key)
+            );
+
+        const buyColor =
+            getRarityColor(
+                getRarity(fusionData.shards, shard2Key)
+            );
+
+        const outputColor =
+            getRarityColor(
+                getRarity(fusionData.shards, outputKey)
+            );
 
         html += `
             <div class="result-card">

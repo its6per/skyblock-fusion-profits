@@ -141,7 +141,8 @@ h1 {
    INPUTS
 ========================= */
 
-#modifier-panel input[type="number"] {
+#modifier-panel input[type="number"],
+#modifier-panel input[type="text"] {
     width: 100%;
     margin-top: 6px;
 
@@ -152,6 +153,14 @@ h1 {
 
     color: white;
     border-radius: 6px;
+
+    font-size: 14px;
+}
+
+#modifier-panel input[type="number"]:focus,
+#modifier-panel input[type="text"]:focus {
+    outline: none;
+    border-color: #666;
 }
 
 #modifier-panel input[type="checkbox"] {
@@ -175,11 +184,15 @@ h1 {
 
 .grid-3x3 {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 10px;
 }
 
 .grid-item {
+    min-width: 0;          /* IMPORTANT: allows shrinking evenly */
+    width: 100%;
+    box-sizing: border-box;
+
     background-color: #1f1f1f;
     border: 1px solid #333;
 
@@ -188,6 +201,8 @@ h1 {
 
     text-align: center;
     font-size: 12px;
+
+    white-space: nowrap;     /* prevents content from forcing expansion */
 }
 
 /* =========================
