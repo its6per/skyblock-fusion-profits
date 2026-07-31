@@ -1,6 +1,5 @@
 import { playerModifiers } from "./modifiers.js";
 
-
 // ========================================
 // SERPENT STACK
 // ========================================
@@ -17,7 +16,6 @@ function getSerpentStack() {
         (1 + tia * 0.05)
     );
 }
-
 
 // ========================================
 // SPAWN MODIFIERS
@@ -54,7 +52,6 @@ export function applySpawnModifiers(
         effectiveRate: rate
     };
 }
-
 
 // ========================================
 // FORTUNE MODIFIERS
@@ -128,7 +125,6 @@ export function applyFortuneModifiers(
     };
 }
 
-
 // ========================================
 // BLACK HOLE
 // ========================================
@@ -157,7 +153,6 @@ export function applyBlackHoleModifiers(
         effectiveRate: rate
     };
 }
-
 
 // ========================================
 // CROCODILE
