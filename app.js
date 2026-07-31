@@ -1,12 +1,94 @@
 import { calculateFusion } from "./js/calculator.js";
 import { getName, formatNumber, getShardImage } from "./js/shards.js";
 import { playerModifiers } from "./js/modifiers.js";
+import { saveSettings, loadSettings } from "./js/storage.js";
 
 let cachedData = null;
 
 let resultLimit = 10;
 let budget = null;
 
+// =========================
+// SAVE / LOAD SETTINGS
+// =========================
+function saveCurrentSettings() {
+
+    saveSettings({
+
+        ...playerModifiers,
+
+        budget,
+        resultLimit
+
+    });
+
+}
+
+function restoreSettings() {
+
+    const saved = loadSettings();
+
+    if (!saved) return;
+
+    for (const key in playerModifiers) {
+
+        if (saved[key] !== undefined) {
+
+            playerModifiers[key] = saved[key];
+
+            const element =
+                document.getElementById(key);
+
+            if (!element) continue;
+
+
+            if (element.type === "checkbox") {
+
+                element.checked = saved[key];
+
+            } else {
+
+                element.value = saved[key];
+
+            }
+
+        }
+
+    }
+
+    if (saved.budget !== undefined) {
+
+        budget = saved.budget;
+
+        const budgetInput =
+            document.getElementById("budgetInput");
+
+        if (budgetInput && budget) {
+
+            budgetInput.value =
+                Math.round(budget)
+                    .toLocaleString("en-US");
+
+        }
+
+    }
+
+    if (saved.resultLimit !== undefined) {
+
+        resultLimit = saved.resultLimit;
+
+        const select =
+            document.getElementById("resultLimitSelect");
+
+        if (select) {
+
+            select.value = resultLimit;
+
+        }
+
+    }
+
+}
 
 // =========================
 // LOAD DATA
@@ -25,6 +107,8 @@ Promise.all([
     bindResultLimitUI();
     bindBudgetUI();
     bindTooltips();
+
+    restoreSettings();
 
     rerun();
 
@@ -49,12 +133,10 @@ function getRarityColor(rarity) {
     }
 }
 
-
 function getRarity(shards, shardId) {
 
     return shards?.[shardId]?.rarity || "common";
 }
-
 
 function resolveShardKey(shards, id) {
 
@@ -178,7 +260,6 @@ function bindModifierUI() {
             const min = Number(el.min || 0);
             const max = Number(el.max || Infinity);
 
-
             if (Number.isNaN(val))
                 val = 0;
 
@@ -187,6 +268,8 @@ function bindModifierUI() {
             el.value = val;
 
             playerModifiers[id] = val;
+
+            saveCurrentSettings();
 
             rerun();
 
@@ -201,6 +284,8 @@ function bindModifierUI() {
         bh.addEventListener("change", () => {
 
             playerModifiers.mediumBlackHole = bh.checked;
+
+            saveCurrentSettings();
 
             rerun();
 
@@ -218,11 +303,19 @@ function bindResultLimitUI() {
 
     if (!select) return;
 
-    resultLimit = Number(select.value) || 10;
+        const saved = loadSettings();
+
+        if (!saved?.resultLimit) {
+
+            resultLimit = Number(select.value) || 10;
+
+        }
 
     select.addEventListener("change", (e) => {
 
         resultLimit = Number(e.target.value) || 10;
+
+        saveCurrentSettings();
 
         rerun();
 
@@ -239,6 +332,8 @@ function bindBudgetUI() {
     input.addEventListener("input", () => {
 
         budget = parseBudget(input.value);
+
+        saveCurrentSettings();
 
         rerun();
 
