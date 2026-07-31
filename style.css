@@ -1,3 +1,12 @@
+@font-face {
+    font-family: "HypixelSkyblock";
+    src: url("assets/fonts/hypixel-skyblock.woff2") format("woff2");
+}
+
+.hypixel-font {
+    font-family: "HypixelSkyblock";
+}
+
 /* =========================
    BASE
 ========================= */
@@ -14,7 +23,6 @@ body {
     color: white;
 
     font-family: Arial, sans-serif;
-
     overflow: hidden;
 }
 
@@ -33,17 +41,17 @@ body {
 ========================= */
 
 #modifier-panel {
-    width: 320px;
+    width: 420px;
     flex-shrink: 0;
 
     height: 100vh;
-
     padding: 20px;
 
     background-color: #181818;
     border-right: 1px solid #333;
 
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 /* =========================
@@ -61,20 +69,18 @@ body {
 }
 
 /* =========================
-   STICKY TOP TITLE INSIDE RESULTS
+   STICKY TOP TITLE
 ========================= */
 
 #results h2 {
     position: sticky;
     top: 0;
-
     z-index: 100;
 
     margin: 0;
     padding: 15px 0;
 
     background-color: #111;
-
     border-bottom: 1px solid #333;
 
     font-size: 20px;
@@ -91,11 +97,9 @@ body {
 
     position: sticky;
     top: 52px;
-
     z-index: 90;
 
     background-color: #111;
-
     padding: 10px 0;
     margin-bottom: 10px;
 
@@ -105,10 +109,9 @@ body {
 .header-cell {
     background-color: #1f1f1f;
     border: 1px solid #333;
-
     border-radius: 8px;
-    padding: 10px;
 
+    padding: 10px;
     text-align: center;
 
     font-weight: bold;
@@ -125,7 +128,6 @@ h1 {
     padding-bottom: 15px;
 
     border-bottom: 1px solid #333;
-
     font-size: 22px;
 }
 
@@ -145,7 +147,6 @@ h1 {
 #modifier-panel input[type="text"] {
     width: 100%;
     margin-top: 6px;
-
     padding: 8px;
 
     background-color: #222;
@@ -153,20 +154,15 @@ h1 {
 
     color: white;
     border-radius: 6px;
-
     font-size: 14px;
 }
 
-/* Remove number input arrows/spinners */
-
-/* Chrome / Edge / Safari */
 #modifier-panel input[type="number"]::-webkit-outer-spin-button,
 #modifier-panel input[type="number"]::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
 
-/* Firefox */
 #modifier-panel input[type="number"] {
     appearance: textfield;
     -moz-appearance: textfield;
@@ -199,25 +195,144 @@ h1 {
 
 .grid-3x3 {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px;
+    grid-template-columns: repeat(3, 1fr);
+
+    column-gap: 18px;
+    row-gap: 18px;
 }
 
-.grid-item {
-    min-width: 0;
-    width: 100%;
-    box-sizing: border-box;
+/* =========================
+   SHARD LABEL
+========================= */
 
-    background-color: #1f1f1f;
-    border: 1px solid #333;
+.shard-label {
+    display: flex;
+    align-items: center;
 
+    gap: 4px;
+
+    font-size: 13px;
+    font-weight: bold;
+    color: #ddd;
+
+    white-space: normal;
+    flex-wrap: wrap;
+
+    line-height: 1.2;
+}
+
+/* =========================
+   TOOLTIPS
+========================= */
+
+.tooltip-icon {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 14px;
+    height: 14px;
+
+    border-radius: 50%;
+
+    background: #2a2a2a;
+
+    font-size: 10px;
+    color: #999;
+
+    cursor: help;
+
+    flex-shrink: 0;
+}
+
+.tooltip-text {
+    display: none;
+}
+
+#floating-tooltip {
+    position: fixed;
+
+    display: none;
+
+    width: max-content;
+    max-width: 260px;
+
+    padding: 10px 12px;
+
+    background: #2a2a2a;
+
+    border: 1px solid #444;
     border-radius: 8px;
-    padding: 8px;
 
-    text-align: center;
+    color: white;
+
     font-size: 12px;
+    line-height: 1.4;
 
-    white-space: nowrap;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+
+    pointer-events: none;
+
+    z-index: 999999;
+}
+
+/* =========================
+   TOOLTIP FORMATTING
+========================= */
+
+.tooltip-title {
+    display: block;
+
+    color: #FFAA00;
+
+    font-weight: bold;
+    font-size: 13px;
+
+    margin-bottom: 8px;
+}
+
+.tooltip-divider {
+    height: 8px;
+}
+
+.tooltip-attribute {
+    display: block;
+
+    color: #AAAAAA;
+
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+
+    margin: 8px 0 3px 0;
+}
+
+.hf {
+    color: #FF55FF;
+}
+
+.common {
+    color: #FFFFFF;
+}
+
+.uncommon {
+    color: #55FF55;
+}
+
+.rare {
+    color: #5555FF;
+}
+
+.epic {
+    color: #AA00AA;
+}
+
+.legendary {
+    color: #FFAA00;
 }
 
 /* =========================
@@ -228,9 +343,11 @@ h1 {
     background-color: #1A1A1A;
 
     border: 1px solid #333;
+
     border-radius: 10px;
 
     padding: 15px;
+
     margin-bottom: 15px;
 }
 
@@ -240,22 +357,29 @@ h1 {
 
 .fusion-grid {
     display: grid;
+
     grid-template-columns: 1fr auto 1fr auto 1fr;
+
     gap: 10px;
+
     align-items: center;
+
     margin-bottom: 15px;
 }
 
 .fusion-cell {
     background-color: #222;
+
     border: 1px solid #333;
 
     border-radius: 8px;
+
     padding: 12px;
 
     text-align: center;
 
     font-size: 16px;
+
     font-weight: bold;
 }
 
