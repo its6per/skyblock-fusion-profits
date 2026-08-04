@@ -140,6 +140,28 @@ h1 {
 }
 
 /* =========================
+   MODIFIER ROWS
+========================= */
+
+.dropdown-row,
+.checkbox-row {
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 12px;
+    font-size: 14px;
+
+}
+
+.checkbox-row input[type="checkbox"] {
+
+    margin: 0;
+
+}
+
+/* =========================
    INPUTS
 ========================= */
 
@@ -155,6 +177,22 @@ h1 {
     color: white;
     border-radius: 6px;
     font-size: 14px;
+}
+
+#modifier-panel select {
+
+    width: auto;
+
+    background-color: #222;
+    border: 1px solid #444;
+
+    color: white;
+
+    border-radius: 6px;
+    font-size: 14px;
+
+    cursor: pointer;
+
 }
 
 #modifier-panel input[type="number"]::-webkit-outer-spin-button,
@@ -175,18 +213,40 @@ h1 {
 }
 
 #modifier-panel input[type="checkbox"] {
-    width: auto;
-    transform: scale(1.2);
+
+    appearance: none;
+    -webkit-appearance: none;
+
+    width: 20px;
+    height: 20px;
+
+    background-color: #222;
+    border: 1px solid #444;
+
+    border-radius: 4px;
+
+    cursor: pointer;
+
+    position: relative;
+
     margin-left: 8px;
+
 }
 
-#modifier-panel label {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+#modifier-panel input[type="checkbox"]:checked::after {
 
-    margin-bottom: 12px;
+    content: "✓";
+
+    position: absolute;
+
+    color: white;
+
     font-size: 14px;
+    font-weight: bold;
+
+    left: 3.8px;
+    top: -1.3px;
+
 }
 
 /* =========================
@@ -292,23 +352,6 @@ h1 {
     font-size: 13px;
 
     margin-bottom: 8px;
-}
-
-.tooltip-divider {
-    height: 8px;
-}
-
-.tooltip-attribute {
-    display: block;
-
-    color: #AAAAAA;
-
-    font-size: 11px;
-    font-weight: bold;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-
-    margin: 8px 0 3px 0;
 }
 
 .hf {

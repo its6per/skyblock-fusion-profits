@@ -21,7 +21,17 @@ export const playerModifiers = {
     crocodileLevel: 0,
 
     // -------------------------
-    // TOGGLES
+    // TOOLS
     // -------------------------
-    mediumBlackHole: false
+    pocketBlackHole: "none",
+    lasso: "none",
+    fishingNet: "none",
+    fishingNetReforge: false,
+
+    // -------------------------
+    // BONUSES
+    // -------------------------
+    accretionAccessory: "none",
+    desertTempleBenefactor: false
+
 };

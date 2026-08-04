@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Skyblock Fusion Profits</title>
+    <meta charset="UTF-8">
+    <title>SkyBlock Fusion Profits</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/png" href="assets/shards/R8.png">
 </head>
@@ -13,10 +14,10 @@
 
     <div id="modifier-panel">
 
-        <h1>Skyblock Fusion Profits</h1>
+        <h1>SkyBlock Fusion Profits</h1>
 
         <h2>Hunter Fortune</h2>
-        <input id="hunterFortune" type="number" value="0" min="0" max="122">
+        <input id="hunterFortune" type="number" value="0" min="0" step="any">
 
         <h2>Shard Levels</h2>
 
@@ -222,10 +223,67 @@
 
         <h2>Tools</h2>
 
-        <label>
-            Medium Pocket Black Hole
-            <input id="mediumBlackHole" type="checkbox">
-        </label>
+        <div class="dropdown-row">
+
+            <span>
+                Pocket Black Hole
+            </span>
+
+            <select id="pocketBlackHole"></select>
+
+        </div>
+
+        <div class="dropdown-row">
+
+            <span>
+                Lasso
+            </span>
+
+            <select id="lasso"></select>
+
+        </div>
+
+        <div class="dropdown-row">
+
+            <span>
+                Fishing Net
+            </span>
+
+            <select id="fishingNet"></select>
+
+        </div>
+
+        <div class="checkbox-row child-row">
+
+            <span>
+                └─ Sticky Reforge
+            </span>
+
+            <input id="fishingNetReforge" type="checkbox">
+
+        </div>
+
+        <h2>Bonuses</h2>
+
+        <div class="dropdown-row">
+
+            <span>
+                Accretion Accessory
+            </span>
+
+            <select id="accretionAccessory"></select>
+
+        </div>
+
+        <div class="checkbox-row">
+
+            <span>
+                Desert Temple Benefactor
+            </span>
+
+            <input id="desertTempleBenefactor" type="checkbox">
+
+        </div>
 
         <h2>Budget</h2>
 

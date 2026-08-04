@@ -41,7 +41,6 @@ function restoreSettings() {
 
             if (!element) continue;
 
-
             if (element.type === "checkbox") {
 
                 element.checked = saved[key];
@@ -49,6 +48,12 @@ function restoreSettings() {
             } else {
 
                 element.value = saved[key];
+
+                if (element.tagName === "SELECT") {
+
+                    autoSizeSelect(element);
+
+                }
 
             }
 
@@ -97,11 +102,46 @@ Promise.all([
     fetch("data/fusion-data.json").then(r => r.json()),
     fetch("data/rates.json").then(r => r.json()),
     fetch("data/attribute-affects.json").then(r => r.json()),
+    fetch("data/grinding-bonuses.json").then(r => r.json()),
     fetch("https://api.hypixel.net/skyblock/bazaar").then(r => r.json())
 ])
 .then((data) => {
 
-    cachedData = data;
+    const [
+        fusionData,
+        ratesData,
+        affectsData,
+        grindingBonuses,
+        bazaarData
+    ] = data;
+
+    cachedData = {
+        fusionData,
+        ratesData,
+        affectsData,
+        grindingBonuses,
+        bazaarData
+    };
+
+    populateDropdown(
+        "pocketBlackHole",
+        cachedData.grindingBonuses.tools.pocket_black_hole.options
+    );
+
+    populateDropdown(
+        "lasso",
+        cachedData.grindingBonuses.tools.lasso.options
+    );
+
+    populateDropdown(
+        "fishingNet",
+        cachedData.grindingBonuses.tools.fishing_net.options
+    );
+
+    populateDropdown(
+        "accretionAccessory",
+        cachedData.grindingBonuses.bonuses.accretion.options
+    );
 
     bindModifierUI();
     bindResultLimitUI();
@@ -114,7 +154,6 @@ Promise.all([
 
 })
 .catch(err => console.error("APP ERROR:", err));
-
 
 // =========================
 // RARITY HELPERS
@@ -190,6 +229,30 @@ function bindTooltips() {
 }
 
 // =========================
+// DROPDOWN POPULATOR
+// =========================
+function populateDropdown(selectId, options) {
+
+    const select = document.getElementById(selectId);
+
+    if (!select) return;
+
+    select.innerHTML = "";
+
+    for (const [value, data] of Object.entries(options)) {
+
+        const option = document.createElement("option");
+
+        option.value = value;
+        option.textContent = data.name;
+
+        select.appendChild(option);
+
+    }
+
+}
+
+// =========================
 // BUDGET PARSER (k/m/b + commas safe)
 // =========================
 function parseBudget(text) {
@@ -232,10 +295,80 @@ function parseBudget(text) {
 // =========================
 // MODIFIERS
 // =========================
+function autoSizeSelect(select) {
+
+    const temp = document.createElement("span");
+
+    temp.style.visibility = "hidden";
+    temp.style.position = "absolute";
+    temp.style.whiteSpace = "nowrap";
+
+    temp.style.fontSize =
+        getComputedStyle(select).fontSize;
+
+    temp.style.fontFamily =
+        getComputedStyle(select).fontFamily;
+
+    temp.textContent =
+        select.options[select.selectedIndex].text;
+
+    document.body.appendChild(temp);
+
+    select.style.width =
+        (temp.offsetWidth + 25) + "px";
+
+    temp.remove();
+
+}
+
 function bindModifierUI() {
 
+    const hunterFortune = document.getElementById("hunterFortune");
+
+    if (hunterFortune) {
+
+        hunterFortune.addEventListener("focus", () => {
+
+            if (hunterFortune.value === "0") {
+                hunterFortune.value = "";
+            }
+
+        });
+
+        hunterFortune.addEventListener("blur", () => {
+
+            if (hunterFortune.value === "") {
+
+                hunterFortune.value = 0;
+
+                playerModifiers.hunterFortune = 0;
+
+                saveCurrentSettings();
+
+                rerun();
+
+            }
+
+        });
+
+        hunterFortune.addEventListener("input", () => {
+
+            const val = Number(hunterFortune.value);
+
+            if (Number.isNaN(val))
+                return;
+
+            playerModifiers.hunterFortune = val;
+
+            saveCurrentSettings();
+
+            rerun();
+
+        });
+
+    }
+
     const fields = [
-        "hunterFortune",
         "newtLevel",
         "salamanderLevel",
         "lizardKingLevel",
@@ -261,7 +394,7 @@ function bindModifierUI() {
             const max = Number(el.max || Infinity);
 
             if (Number.isNaN(val))
-                val = 0;
+                return;
 
             val = Math.max(min, Math.min(max, val));
 
@@ -277,13 +410,26 @@ function bindModifierUI() {
 
     }
 
-    const bh = document.getElementById("mediumBlackHole");
+    const dropdowns = [
+        "pocketBlackHole",
+        "lasso",
+        "fishingNet",
+        "accretionAccessory"
+    ];
 
-    if (bh) {
+    for (const id of dropdowns) {
 
-        bh.addEventListener("change", () => {
+        const el = document.getElementById(id);
 
-            playerModifiers.mediumBlackHole = bh.checked;
+        if (!el) continue;
+
+        autoSizeSelect(el);
+
+        el.addEventListener("change", () => {
+
+            playerModifiers[id] = el.value;
+
+            autoSizeSelect(el);
 
             saveCurrentSettings();
 
@@ -292,6 +438,43 @@ function bindModifierUI() {
         });
 
     }
+
+    const desertTemple =
+        document.getElementById("desertTempleBenefactor");
+
+    if (desertTemple) {
+
+        desertTemple.addEventListener("change", () => {
+
+            playerModifiers.desertTempleBenefactor =
+                desertTemple.checked;
+
+            saveCurrentSettings();
+
+            rerun();
+
+        });
+
+    }
+
+    const fishingNetReforge =
+        document.getElementById("fishingNetReforge");
+
+    if (fishingNetReforge) {
+
+        fishingNetReforge.addEventListener("change", () => {
+
+            playerModifiers.fishingNetReforge =
+                fishingNetReforge.checked;
+
+            saveCurrentSettings();
+
+            rerun();
+
+        });
+
+    }
+
 }
 
 // =========================
@@ -358,12 +541,13 @@ function rerun() {
 
     if (!cachedData) return;
 
-    const [
+    const {
         fusionData,
         ratesData,
         affectsData,
+        grindingBonuses,
         bazaarData
-    ] = cachedData;
+    } = cachedData;
 
     const topResults = calculateFusion({
 
@@ -372,6 +556,7 @@ function rerun() {
         shards: fusionData.shards,
         bazaarProducts: bazaarData.products,
         affectsData,
+        grindingBonuses,
         budget
 
     });

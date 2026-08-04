@@ -1,0 +1,109 @@
+{
+    "tools": {
+        "pocket_black_hole": {
+            "options": {
+                "none": {
+                    "name": "None",
+                    "hunting_fortune": 0
+                },
+                "small": {
+                    "name": "Small Pocket Black Hole",
+                    "hunting_fortune": 0
+                },
+                "medium": {
+                    "name": "Medium Pocket Black Hole",
+                    "hunting_fortune": 2.5
+                },
+                "large": {
+                    "name": "Large Pocket Black Hole",
+                    "hunting_fortune": 5
+                }
+            }
+        },
+
+        "lasso": {
+            "options": {
+                "none": {
+                    "name": "None",
+                    "hunting_fortune": 0
+                },
+                "abysmal": {
+                    "name": "Abysmal Lasso",
+                    "hunting_fortune": 0
+                },
+                "vinerip": {
+                    "name": "Vinerip Lasso",
+                    "hunting_fortune": 0
+                },
+                "entangler": {
+                    "name": "Entangler Lasso",
+                    "hunting_fortune": 2.5
+                },
+                "everstretch": {
+                    "name": "Everstretch Lasso",
+                    "hunting_fortune": 5
+                }
+            }
+        },
+
+        "fishing_net": {
+            "options": {
+                "none": {
+                    "name": "None",
+                    "hunting_fortune": 0
+                },
+                "basic": {
+                    "name": "Basic Fishing Net",
+                    "hunting_fortune": 0
+                },
+                "medium": {
+                    "name": "Medium Fishing Net",
+                    "hunting_fortune": 2.5
+                },
+                "turbo": {
+                    "name": "Turbo Fishing Net",
+                    "hunting_fortune": 5
+                },
+                "gigantic": {
+                    "name": "Gigantic Fishing Net",
+                    "hunting_fortune": 10
+                }
+            },
+
+            "reforges": {
+                "sticky": {
+                    "name": "Sticky Reforge",
+                    "hunting_fortune": 2.5
+                }
+            }
+        }
+    },
+
+    "bonuses": {
+        "accretion": {
+            "options": {
+                "none": {
+                    "name": "None",
+                    "black_hole_speed": 0
+                },
+                "talisman": {
+                    "name": "Accretion Talisman",
+                    "black_hole_speed": 0.05
+                },
+                "ring": {
+                    "name": "Accretion Ring",
+                    "black_hole_speed": 0.10
+                },
+                "artifact": {
+                    "name": "Accretion Artifact",
+                    "black_hole_speed": 0.15
+                }
+            }
+        },
+
+        "desert_temple_benefactor": {
+            "name": "Desert Temple Benefactor",
+            "black_hole_speed": 0.25
+        }
+    }
+}

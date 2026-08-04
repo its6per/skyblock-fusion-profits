@@ -17,6 +17,7 @@ export function calculateFusion({
     shards,
     bazaarProducts,
     affectsData,
+    grindingBonuses,
     budget = null
 }) {
 
@@ -31,13 +32,13 @@ export function calculateFusion({
 
     const serpentStack = 1 + (seaBonus * (1 + tiamatBonus));
 
-    const pythonSpeedMult =
-        1 + ((playerModifiers.pythonLevel || 0) * 0.05 * serpentStack);
+    const pythonSpeedBonus =
+        (playerModifiers.pythonLevel || 0) *
+        0.05 *
+        serpentStack;
 
     const cobraMult =
         1 + ((playerModifiers.kingCobraLevel || 0) * 0.01 * serpentStack);
-
-    const blackHoleEV = playerModifiers.mediumBlackHole ? 1.1 : 1;
 
     // =========================
     // RECIPES LOOP
@@ -79,39 +80,132 @@ export function calculateFusion({
                 if (affectsData?.leviathan_affects?.includes(shard1))
                     totalFortune += (playerModifiers.leviathanLevel || 0);
 
+                // Pocket Black Hole bonus
+
+                if (
+                    affectsData?.black_hole_affects?.includes(shard1) &&
+                    playerModifiers.pocketBlackHole
+                ) {
+
+                    const blackHoleBonus =
+                        grindingBonuses.tools
+                            .pocket_black_hole
+                            .options[playerModifiers.pocketBlackHole]
+                            ?.hunting_fortune || 0;
+
+                    totalFortune += blackHoleBonus;
+
+                }
+
+                // Lasso bonus
+
+                if (
+                    affectsData?.lasso_affects?.includes(shard1) &&
+                    playerModifiers.lasso
+                ) {
+
+                    const lassoBonus =
+                        grindingBonuses.tools
+                            .lasso
+                            .options[playerModifiers.lasso]
+                            ?.hunting_fortune || 0;
+
+                    totalFortune += lassoBonus;
+
+                }
+
+                // Fishing Net bonus
+
+                if (
+                    affectsData?.fishing_net_affects?.includes(shard1) &&
+                    playerModifiers.fishingNet !== "none"
+                ) {
+
+                    const fishingNetBonus =
+                        grindingBonuses.tools
+                            .fishing_net
+                            .options[playerModifiers.fishingNet]
+                            ?.hunting_fortune || 0;
+
+                    totalFortune += fishingNetBonus;
+
+                }
+
+                // Sticky Reforge bonus
+
+                if (
+                    affectsData?.fishing_net_affects?.includes(shard1) &&
+                    playerModifiers.fishingNet !== "none" &&
+                    playerModifiers.fishingNetReforge
+                ) {
+
+                    const stickyBonus =
+                        grindingBonuses.tools
+                            .fishing_net
+                            .reforges
+                            .sticky
+                            ?.hunting_fortune || 0;
+
+                    totalFortune += stickyBonus;
+
+                }
+
                 const fortuneMult = 1 + totalFortune / 100;
 
                 // =========================
                 // CONDITIONAL MODS
                 // =========================
 
-                const pythonMult =
-                    affectsData?.python_affects?.includes(shard1)
-                        ? pythonSpeedMult
-                        : 1;
+                let totalSpeedBonus = 0;
+
+                if (affectsData?.python_affects?.includes(shard1))
+                    totalSpeedBonus += pythonSpeedBonus;
+
+                if (
+                    affectsData?.accretion_accessory_affects?.includes(shard1)
+                ) {
+
+                    const accessoryBonus =
+                        grindingBonuses.bonuses
+                            .accretion
+                            .options[playerModifiers.accretionAccessory]
+                            ?.black_hole_speed || 0;
+
+                    totalSpeedBonus += accessoryBonus;
+
+                }
+
+                if (
+                    affectsData?.desert_temple_affects?.includes(shard1) &&
+                    playerModifiers.desertTempleBenefactor
+                ) {
+
+                    const desertBonus =
+                        grindingBonuses.bonuses
+                            .desert_temple_benefactor
+                            ?.black_hole_speed || 0;
+
+                    totalSpeedBonus += desertBonus;
+
+                }
+
+                const speedMult = 1 + totalSpeedBonus;
 
                 const kingCobraBuff =
                     affectsData?.king_cobra_affects?.includes(shard1)
                         ? cobraMult
                         : 1;
 
-                const blackHoleMult =
-                    (
-                        playerModifiers.mediumBlackHole &&
-                        (
-                            affectsData?.python_affects?.includes(shard1) ||
-                            affectsData?.king_cobra_affects?.includes(shard1)
-                        )
-                    )
-                        ? blackHoleEV
-                        : 1;
+                const unaffectedShard =
+                    affectsData?.fortune_ignored_shards?.includes(shard1);
 
                 const finalRate =
-                    baseRate *
-                    fortuneMult *
-                    kingCobraBuff *
-                    blackHoleMult *
-                    pythonMult;
+                    unaffectedShard
+                        ? baseRate
+                        : baseRate *
+                        fortuneMult *
+                        kingCobraBuff *
+                        speedMult;
 
                 // =========================
                 // BUY LIMIT
@@ -153,10 +247,15 @@ export function calculateFusion({
                     fam1.includes("Reptile") ||
                     fam2.includes("Reptile");
 
-                if (reptile) {
-                    outputAmountPerHour *=
-                        1 + ((playerModifiers.crocodileLevel || 0) * 0.02);
-                }
+                const crocodileMult =
+                    reptile
+                        ? 1 + ((playerModifiers.crocodileLevel || 0) * 0.02)
+                        : 1;
+
+                outputAmountPerHour =
+                    fusionRate *
+                    outputAmount *
+                    crocodileMult;
 
                 // =========================
                 // PRICES (IMPORTANT FIX)
@@ -192,7 +291,10 @@ export function calculateFusion({
 
                     grindAmount = fusionRate * fuseAmount1;
                     buyAmount = fusionRate * fuseAmount2;
-                    outputAmountPerHour = fusionRate * outputAmount;
+                    outputAmountPerHour =
+                        fusionRate *
+                        outputAmount *
+                        crocodileMult;
 
                     costToBuy = buyAmount * buyPrice;
                     revenue = outputAmountPerHour * sellPrice;
